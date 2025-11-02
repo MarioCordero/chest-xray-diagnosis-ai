@@ -1,0 +1,30 @@
+# Python / fastai
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.ipynb_checkpoints/
+*.DS_Store
+
+# Entornos
+.venv/
+venv/
+env/
+ia_medica/
+
+# Datos (no versionar datasets)
+Datasets/
+data/
+*.zip
+*.tar
+*.tar.gz
+
+# Notebooks de cache
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# Archivos grandes temporales
+*.log
