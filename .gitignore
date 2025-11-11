@@ -28,3 +28,7 @@ data/
 
 # Archivos grandes temporales
 *.log
+
+# Imágenes médicas
+Datasets/chest_xray/*
+notes.txt
