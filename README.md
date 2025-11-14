@@ -1,54 +1,99 @@
-# Chest X-Ray Pneumonia – ResNet18 (FastAI)
 
-Prototipo de IA para diagnóstico asistido a partir de radiografías de tórax (**NORMAL** vs **PNEUMONIA**).
-Implementado con **FastAI**/**PyTorch** usando **transfer learning** (ResNet-18).
+# 🩻 Chest X-Ray Pneumonia Detection – ResNet18 (FastAI + PyTorch)
 
-## � Resumen rápido
-- Modelo: ResNet-18 (transfer learning, FastAI)
-- Tareas: Clasificación binaria (NORMAL / PNEUMONIA)
-- Artefactos: `project/outputs/export.pkl` (modelo exportado), figuras de evaluación en `project/outputs/`
-
-## �📊 Resultados (ejemplo)
-- **Validación**: Accuracy **0.94**, F1 (macro) **0.94**, AUC **1.000**
-- **Prueba**: Accuracy **0.94**, F1 (macro) **0.93**, AUC **0.986**
-- Figuras: `project/outputs/cm_val.png`, `project/outputs/roc_val.png`, `project/outputs/roc_test.png`
-
-> Dataset: *Chest X-Ray Images (Pneumonia)* (Kaggle – P. Mooney). No se incluyen las imágenes por licencia / tamaño.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAI](https://img.shields.io/badge/FastAI-2.7+-blueviolet?logo=fastapi&logoColor=white)](https://docs.fast.ai/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![CUDA](https://img.shields.io/badge/CUDA-12.4-green?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 🗂 Estructura del proyecto
+## 🧠 Overview
+AI prototype for **medical image diagnosis** based on chest X-rays.  
+Trained to classify between **NORMAL** and **PNEUMONIA** using **transfer learning** with a **ResNet18** backbone.
+
+Built with **FastAI** and **PyTorch**, this project demonstrates how deep learning can assist medical professionals by improving diagnostic speed and consistency.
+
+---
+
+## ⚙️ Model Summary
+| Component | Description |
+|------------|--------------|
+| **Framework** | FastAI + PyTorch |
+| **Architecture** | ResNet18 pretrained on ImageNet |
+| **Learning Strategy** | Transfer Learning + Fine-Tuning |
+| **Optimizer** | Adam |
+| **Loss Function** | Cross-Entropy |
+| **Augmentations** | Rotation, flipping, scaling, brightness, contrast |
+| **Normalization** | ImageNet mean/std normalization |
+
+---
+
+## 📊 Results
+| Dataset | Accuracy | F1 (macro) | AUC |
+|----------|-----------|-------------|-----|
+| **Validation** | 0.94 | 0.94 | 1.000 |
+| **Test** | 0.94 | 0.93 | 0.986 |
+
+**Generated figures:**  
+- `cm_val.png` – Confusion Matrix  
+- `roc_val.png` – ROC Curve (Validation)  
+- `roc_test.png` – ROC Curve (Test)
+
+---
+
+## 🗂️ Project Structure
 ```
+
 project/
-├── train_local.py          # entrenamiento + métricas + figuras + export.pkl
-├── infer.py                # inferencia con export.pkl
+├── train_local.py          # training + metrics + export.pkl
+├── infer.py                # inference with trained model
 └── outputs/
-    ├── export.pkl
-    ├── cm_val.png
-    ├── roc_val.png
-    └── roc_test.png
+├── export.pkl
+├── cm_val.png
+├── roc_val.png
+└── roc_test.png
+
 ```
 
 ---
 
-## ⚙️ Setup (resumen)
-Para detalles completos, ver `SETUP.md`. Aquí está el flujo rápido:
+## 🧩 Dataset
+Dataset used: [**Chest X-Ray Images (Pneumonia)** – Kaggle (Paul Mooney)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia)
 
-1. Crear y activar venv (ejemplo):
+Place files as:
+```
+
+Datasets/chest_xray/
+├── train/{NORMAL,PNEUMONIA}
+├── val/{NORMAL,PNEUMONIA}
+└── test/{NORMAL,PNEUMONIA}
+
+````
+
+> ⚠️ Images are **not included** in this repository due to license and size limitations.
+
+---
+
+## 🚀 Setup & Training
+
+### 1️⃣ Create and activate a virtual environment
 ```bash
 python3 -m venv ia_medica
 source ia_medica/bin/activate
-```
-2. Actualizar pip y herramientas:
+````
+
+### 2️⃣ Install dependencies
+
 ```bash
 python -m pip install --upgrade pip setuptools wheel
-```
-3. Instalar PyTorch (ajusta `cu124` según tu CUDA) y dependencias del proyecto:
-```bash
 python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 python -m pip install fastai timm scikit-learn matplotlib jupyterlab
 ```
-4. Verificar CUDA (dentro del venv):
+
+### 3️⃣ Verify GPU / CUDA availability
+
 ```bash
 python - << 'PY'
 import torch
@@ -59,23 +104,7 @@ if torch.cuda.is_available():
 PY
 ```
 
----
-
-## 📦 Dataset
-Descargar desde Kaggle: [Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia)
-Colocar la carpeta así (no subirla al repo por licencia/size):
-
-```
-Datasets/chest_xray/
-├── train/{NORMAL,PNEUMONIA}
-├── val/{NORMAL,PNEUMONIA}
-└── test/{NORMAL,PNEUMONIA}
-```
-
----
-
-## 🚀 Entrenamiento (Quick start)
-Desde la raíz del repo, con el venv activado:
+### 4️⃣ Train the model
 
 ```bash
 cd project
@@ -86,55 +115,63 @@ python train_local.py \
   --num_workers 4
 ```
 
-Salida esperada: métricas de entrenamiento/validación y artefactos guardados en `project/outputs/`.
-
-Parámetros comunes:
-- `--data_dir`: ruta al dataset
-- `--epochs`: número de épocas (ej. 8)
-- `--bs`: batch size (ej. 32)
-- `--num_workers`: workers de data loading (ej. 4)
-
 ---
 
-## 🔍 Inferencia (usar modelo entrenado)
+## 🔍 Inference Example
 
-1) Usar `export.pkl` generado por FastAI (guardado en `project/outputs/`).
-
-2) Ejemplo de inferencia (archivo `project/infer.py`):
+Use your trained `export.pkl` model for predictions:
 
 ```bash
-# Usando export.pkl (ruta por defecto en outputs)
-python project/infer.py project/outputs/export.pkl <ruta_a_una_imagen>
-
-# Ejemplo con una imagen del set de prueba:
-python project/infer.py ../Datasets/chest_xray/test/PNEUMONIA/person14_virus_44.jpeg
+python project/infer.py project/outputs/export.pkl ../Datasets/chest_xray/test/PNEUMONIA/person14_virus_44.jpeg
 ```
 
-Nota: `infer.py` espera la ruta al modelo exportado o usa la ruta por defecto; revisa el script si necesitas pasar parámetros adicionales.
+Example output:
+
+```
+Prediction: PNEUMONIA | P(NORMAL)=0.006 | P(PNEUMONIA)=0.994
+```
 
 ---
 
-## � Outputs generados
-- `project/outputs/export.pkl` — modelo exportado (FastAI).
-- `project/outputs/cm_val.png`, `roc_val.png`, `roc_test.png` — figuras de evaluación (matriz de confusión, curvas ROC).
+## 🧠 Outputs
+
+| File           | Description                     |
+| -------------- | ------------------------------- |
+| `export.pkl`   | Serialized trained FastAI model |
+| `cm_val.png`   | Confusion Matrix (Validation)   |
+| `roc_val.png`  | ROC Curve (Validation)          |
+| `roc_test.png` | ROC Curve (Test)                |
 
 ---
 
-## 🆘 Troubleshooting (rápido)
-- `venv: command not found` → `sudo apt install python3.12-venv`
-- `ModuleNotFoundError: No module named 'torch'` → instalar PyTorch dentro del venv
-- `cuda available?: False` → revisar `nvidia-smi` y drivers NVIDIA; reinstalar PyTorch con la versión CUDA correcta
-- `PermissionError` → no ejecutar como `sudo` dentro del venv
+## 🧰 Troubleshooting
+
+| Issue                                          | Fix                                                    |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| `venv: command not found`                      | `sudo apt install python3.12-venv`                     |
+| `ModuleNotFoundError: No module named 'torch'` | Install PyTorch inside your venv                       |
+| `cuda available?: False`                       | Check `nvidia-smi` and reinstall matching CUDA version |
+| `PermissionError`                              | Avoid running inside venv with `sudo`                  |
 
 ---
 
-## �🧠 Notas finales
-- `export.pkl` fue generado con `fastai` (usa `pickle`). No cargar artefactos no confiables.
-- Para despliegues seguros, considerar `Learner.save()` o TorchScript.
-- Este prototipo es **educativo/investigativo** y **no** está validado para uso clínico.
+## ⚠️ Notes
+
+* `export.pkl` uses Python’s **pickle** serialization — only load trusted files.
+* For deployment, consider `Learner.save()` or **TorchScript** for safer model export.
+* This is a **research and educational** prototype, **not intended for clinical use**.
 
 ---
 
-## 👨‍💻 Créditos
-- Autor: **Mario Cordero**
-- Basado en FastAI + PyTorch
+## 👨‍💻 Author
+
+**Mario Cordero**
+School of Computer Science and Informatics
+University of Costa Rica (UCR)
+
+📍 San José, Costa Rica
+🔗 [GitHub Repository](https://github.com/MarioCordero/chest-xray-diagnosis-ai)
+
+---
+
+⭐ *If you find this project useful, please give it a star!*
